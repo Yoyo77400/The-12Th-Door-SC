@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 
-contract FidelityNFT is ERC721 {
+contract FidelityNFT is ERC721Pausable {
     uint256 public tokenId;
     mapping (address => bool) public hasMinted;
     mapping (uint256 => string) private seasonOf;
@@ -20,23 +20,11 @@ contract FidelityNFT is ERC721 {
         _safeMint(to, tokenId);
         seasonOf[tokenId] = seasonOf_;
         hasMinted[to] = true;
+        _pause();
         tokenId++;
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return "https://api.example.com/metadata/";
-    }
-
-    /** 
-    *@notice override transfer functions to prevent transferability and assign NFT to a specific wallet
-    */
-    function approve(address, uint256) public pure override {
-        revert NonTransferable();
-    }
-    function setApprovalForAll(address, bool) public pure override {
-        revert NonTransferable();
-    }
-    function transferFrom(address, address, uint256) public pure override {
-        revert NonTransferable();
     }
 }
