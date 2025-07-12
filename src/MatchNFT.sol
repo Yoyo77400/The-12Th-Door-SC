@@ -6,10 +6,11 @@ import { ERC721URIStorage } from "@openzeppelin/contracts/token/ERC721/extension
 
 contract MatchNFT is ERC721URIStorage {
     uint256 public tokenId;
-    address public admin;
+    mapping(address => bool) public hasMinted;
     bool public marketEnabled;
 
     error MarketNotEnabled();
+    error AlreadyMinted();
 
     modifier marketEnabledOnly() {
         if (!marketEnabled) revert MarketNotEnabled();
@@ -18,14 +19,13 @@ contract MatchNFT is ERC721URIStorage {
 
     constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
         tokenId = 0;
-        admin = msg.sender;
         marketEnabled = false;
     }
 
-    function mint(address to, string memory _tokenURI) external {
-        require(msg.sender == admin, "Only admin can mint");
+    function mint(address to) external {
+        if (hasMinted[to]) revert AlreadyMinted();
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
+        hasMinted[to] = true;
         tokenId++;
     }
 
