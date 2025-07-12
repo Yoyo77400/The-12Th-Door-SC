@@ -13,6 +13,7 @@ contract FidelityNFT is ERC721Pausable {
 
     constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
         tokenId = 0;
+        _baseURI();
     }
 
     function mint(address to, string memory seasonOf_) external {
@@ -25,6 +26,6 @@ contract FidelityNFT is ERC721Pausable {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "https://api.example.com/metadata/";
+        return "https://localhost:3000/fidelity-nft/0x6C0eB378c14981e8fb45e009bE71Aa894F3dfdf6/6871fe25aee77b9be75ef506";
     }
 }

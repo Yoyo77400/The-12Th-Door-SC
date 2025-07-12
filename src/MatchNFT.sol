@@ -21,6 +21,7 @@ contract MatchNFT is ERC721URIStorage {
     constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
         tokenId = 0;
         marketEnabled = false;
+        _baseURI();
     }
 
     function mint(address to) external {
@@ -31,7 +32,7 @@ contract MatchNFT is ERC721URIStorage {
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
-        return "https://api.example.com/metadata/";
+        return "https://localhost:3000/match-nft/68720c1c33e05427a03276d1/0x6C0eB378c14981e8fb45e009bE71Aa894F3dfdf6";
     }
 
     function tokenURI(uint256 matchID) public pure override returns (string memory) {
