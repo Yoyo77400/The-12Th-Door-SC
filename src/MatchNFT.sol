@@ -4,9 +4,16 @@ pragma solidity ^0.8.28;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { ERC721URIStorage } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MatchNFT is ERC721URIStorage {
+contract MatchNFT is ERC721URIStorage, Pausable, Ownable {
     uint256 public tokenId;
+    struct NFTClaim {
+        address claimer;
+        string matchID;
+    }
+    mapping(uint256 => NFTClaim) public NFTDetailsClaim;
     mapping(address => bool) public hasMinted;
     bool public marketEnabled;
 
@@ -18,25 +25,50 @@ contract MatchNFT is ERC721URIStorage {
         _;
     }
 
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
+    constructor(string memory name_, string memory symbol_, address _owner) ERC721(name_, symbol_) Ownable(msg.sender) {
         tokenId = 0;
         marketEnabled = false;
-        _baseURI();
+        transferOwnership(_owner);
     }
 
-    function mint(address to) external {
+    function pause() external onlyOwner() {
+        _pause();
+    }
+
+    function unpause() external onlyOwner() {
+        _unpause();
+    }
+
+    function mint(address to, string memory matchId) external whenNotPaused() {
         if (hasMinted[to]) revert AlreadyMinted();
         _safeMint(to, tokenId);
-        hasMinted[to] = true;
+        
+        NFTDetailsClaim[tokenId] = NFTClaim({claimer: to, matchID: matchId});
         tokenId++;
     }
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return "https://localhost:3000/match-nft/68720c1c33e05427a03276d1/0x6C0eB378c14981e8fb45e009bE71Aa894F3dfdf6";
+    function tokenURI(uint256 tokenId_) public view override returns (string memory) {
+        NFTClaim memory claim = NFTDetailsClaim[tokenId_];
+        return string(
+            abi.encodePacked(
+                "https://localhost:3000/match-nft/",
+                claim.matchID,
+                "/",
+                Strings.toHexString(uint256(uint160(claim.claimer)), 20)
+            )
+        );
     }
 
-    function tokenURI(uint256 matchID) public pure override returns (string memory) {
-        return string(abi.encodePacked("https://tonapi.com/api/nft/metadata/", Strings.toString(matchID), ".json"));
+    function previewURI(uint256 tokenId_) external view returns (string memory) {
+        NFTClaim memory claim = NFTDetailsClaim[tokenId_];
+        return string(
+            abi.encodePacked(
+                "https://localhost:3000/match-nft/",
+                claim.matchID,
+                "/",
+                Strings.toHexString(uint256(uint160(claim.claimer)), 20)
+            )
+        );
     }
 
     function setMarketEnabled(bool enabled) external {

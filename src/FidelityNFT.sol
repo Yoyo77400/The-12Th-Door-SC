@@ -13,7 +13,6 @@ contract FidelityNFT is ERC721Pausable {
 
     constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
         tokenId = 0;
-        _baseURI();
     }
 
     function mint(address to, string memory seasonOf_) external {

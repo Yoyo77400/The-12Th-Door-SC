@@ -16,7 +16,7 @@ contract DeployNFTs is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         //  Déploiement des contrats
-        MatchNFT matchNFT = new MatchNFT("MatchNFT", "MNFT");
+        MatchNFT matchNFT = new MatchNFT("MatchNFT", "MNFT", deployer);
         FidelityNFT fidelityNFT = new FidelityNFT("FidelityNFT", "FNFT");
 
         //  Vérification post-déploiement
@@ -24,7 +24,7 @@ contract DeployNFTs is Script {
         console.log("FidelityNFT deployed at:", address(fidelityNFT));
 
         //  Appels post-déploiement
-        try matchNFT.mint(deployer) {
+        try matchNFT.mint(deployer, "68720c1c33e05427a03276d1") {
             console.log("MatchNFT minted to:", deployer);
         } catch {
             console.log("MatchNFT mint failed.");
