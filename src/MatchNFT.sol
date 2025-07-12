@@ -3,6 +3,7 @@ pragma solidity ^0.8.28;
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { ERC721URIStorage } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MatchNFT is ERC721URIStorage {
     uint256 public tokenId;
@@ -31,6 +32,10 @@ contract MatchNFT is ERC721URIStorage {
 
     function _baseURI() internal view virtual override returns (string memory) {
         return "https://api.example.com/metadata/";
+    }
+
+    function tokenURI(uint256 matchID) public pure override returns (string memory) {
+        return string(abi.encodePacked("https://tonapi.com/api/nft/metadata/", Strings.toString(matchID), ".json"));
     }
 
     function setMarketEnabled(bool enabled) external {
